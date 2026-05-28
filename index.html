@@ -753,7 +753,7 @@ body{font-family:'Lato',sans-serif;background:#F2F2F2;color:#002E35;min-height:1
 
   <div class="rs">
     <div class="rs-hd"><div class="rs-t">Data Sources Loaded</div><div class="rs-s">Click a country to explore assets</div></div>
-    <div class="rs-body" id="data-sources-list"></div>
+    <div class="rs-body" id="data-sources-list" style="max-height:320px;overflow-y:auto"></div>
   </div>
 </div>
 
@@ -2096,169 +2096,179 @@ function buildPDFHTML(countryName, flag, tech, techLabel, region, dateStr,
   allAdvisors, recentAdvsForPage3, comps, codStr, rtbStr, irrStr,
   advCount, regionPipelineMW, recentComs, narrativeText, advisorBars, b) {
 
-  var srcLabel = dataSources.length ? (dataSources[0].label || dataSources[0].title || 'Advisor DB') : 'Advisor DB';
+  var srcLabel = dataSources.length ? (dataSources[0].label || dataSources[0].title || dataSources[0].name || 'Advisor DB') : 'Advisor DB';
   var barAdvisors = advisorBars.slice(0, 4);
   var barMax = barAdvisors.length ? Math.max.apply(null, barAdvisors.map(function(a){return a.val;})) : 1;
+  var LOGO_SRC = 'data:image/png;base64,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';
 
   function actDots(count) {
     var filled = Math.min(Math.max(Math.round(count), 1), 5);
     var out = '';
     for (var i = 0; i < 5; i++) {
-      out += '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + (i < filled ? '#009CB8' : '#D9D9D9') + ';margin-right:2px"></span>';
+      out += '<span style=\"display:inline-block;width:7px;height:7px;border-radius:50%;background:' + (i < filled ? '#009CB8' : '#D9D9D9') + ';margin-right:2px\"></span>';
     }
     return out;
   }
 
-  var compRows = comps.slice(0, 8).map(function(c, i) {
-    return '<tr style="background:' + (i % 2 === 0 ? '#fff' : '#F2F2F2') + '">'
-      + '<td style="padding:6px 9px;font-size:8.5px;color:#002E35">' + (c.t || 'n/a') + '</td>'
-      + '<td style="padding:6px 9px;font-size:8.5px"><span style="background:#EAF5F7;color:#005B6C;font-size:7.5px;padding:2px 6px;border-radius:3px;font-weight:700">' + (c.s || 'n/a') + '</span></td>'
-      + '<td style="padding:6px 9px;font-size:8.5px;color:#002E35">' + (c.mw ? c.mw + 'MW' : 'n/a') + '</td>'
-      + '<td style="padding:6px 9px;font-size:8.5px;font-weight:700;color:#002E35">' + (c.ev || 'n/a') + '</td>'
-      + '<td style="padding:6px 9px;font-size:8.5px;color:#939393">' + (c.d || 'n/a') + '</td>'
+  var compRows = comps.slice(0, 12).map(function(c, i) {
+    return '<tr style=\"background:' + (i % 2 === 0 ? '#fff' : '#F2F2F2') + '\">'
+      + '<td style=\"padding:6px 9px;font-size:8.5px;color:#002E35\">' + (c.t || 'n/a') + '</td>'
+      + '<td style=\"padding:6px 9px;font-size:8.5px\"><span style=\"background:#EAF5F7;color:#005B6C;font-size:7.5px;padding:2px 6px;border-radius:3px;font-weight:700\">' + (c.s || 'n/a') + '</span></td>'
+      + '<td style=\"padding:6px 9px;font-size:8.5px;color:#002E35\">' + (c.mw ? c.mw + 'MW' : 'n/a') + '</td>'
+      + '<td style=\"padding:6px 9px;font-size:8.5px;font-weight:700;color:#002E35\">' + (c.ev || 'n/a') + '</td>'
+      + '<td style=\"padding:6px 9px;font-size:8.5px;color:#939393\">' + (c.d || 'n/a') + '</td>'
       + '</tr>';
   }).join('');
 
   var advCards = recentAdvsForPage3.map(function(a) {
     var comCount = recentComs.filter(function(e){return e.advisor === a.n;}).length || 1;
-    return '<div style="border:0.5px solid #D9D9D9;border-radius:6px;padding:11px;break-inside:avoid">'
-      + '<div style="font-size:10px;font-weight:700;color:#002E35;margin-bottom:2px">' + (a.n || 'n/a') + '</div>'
-      + '<div style="font-size:8px;color:#939393;margin-bottom:7px">' + (a.d || 'n/a') + ' &middot; ' + comCount + ' COM(s)</div>'
-      + '<div style="margin-bottom:7px"><span style="display:inline-block;background:#009CB8;color:#fff;font-size:7px;padding:2px 6px;border-radius:3px;font-weight:700">COM Meeting</span></div>'
-      + '<div style="font-size:8px;color:#002E35;line-height:1.5;border-top:0.5px solid #D9D9D9;padding-top:7px">' + (a.v || 'No notes recorded.') + '</div>'
+    return '<div style=\"border:0.5px solid #D9D9D9;border-radius:6px;padding:11px;break-inside:avoid;page-break-inside:avoid\">'
+      + '<div style=\"font-size:10px;font-weight:700;color:#002E35;margin-bottom:2px\">' + (a.n || 'n/a') + '</div>'
+      + '<div style=\"font-size:8px;color:#939393;margin-bottom:7px\">' + (a.d || 'n/a') + ' &middot; ' + comCount + ' COM(s)</div>'
+      + '<div style=\"margin-bottom:7px\"><span style=\"display:inline-block;background:#009CB8;color:#fff;font-size:7px;padding:2px 6px;border-radius:3px;font-weight:700\">COM Meeting</span></div>'
+      + '<div style=\"font-size:8px;color:#002E35;line-height:1.5;border-top:0.5px solid #D9D9D9;padding-top:7px\">' + (a.v || 'No notes recorded.') + '</div>'
       + '</div>';
   }).join('');
 
   var dirRows = allAdvisors.map(function(a, i) {
     var comCount = recentComs.filter(function(e){return e.advisor === a.n;}).length || 1;
     var actLevel = comCount >= 3 ? 'High' : comCount >= 2 ? 'Medium' : 'Low';
-    return '<tr style="background:' + (i % 2 === 0 ? '#fff' : '#F2F2F2') + '">'
-      + '<td style="padding:9px 10px;vertical-align:top"><div style="font-size:10px;font-weight:700;color:#002E35">' + (a.n || 'n/a') + '</div><div style="font-size:8px;color:#939393;margin-top:1px">' + region + ' &middot; ' + tech + '</div></td>'
-      + '<td style="padding:9px 10px;font-size:8px;color:#002E35;vertical-align:top">' + (a.contact || a.n || 'n/a') + '</td>'
-      + '<td style="padding:9px 10px;font-size:8px;color:#002E35;vertical-align:top">' + (a.d || 'n/a') + '<div style="font-size:7.5px;color:#939393;margin-top:1px">' + comCount + ' COM(s)</div></td>'
-      + '<td style="padding:9px 10px;vertical-align:top">' + actDots(comCount) + '<div style="font-size:7px;color:#939393;margin-top:3px">' + actLevel + '</div></td>'
-      + '<td style="padding:9px 10px;font-size:8px;color:#002E35;vertical-align:top;line-height:1.5">' + (a.v || 'n/a') + '</td>'
+    return '<tr style=\"background:' + (i % 2 === 0 ? '#fff' : '#F2F2F2') + ';page-break-inside:avoid\">'
+      + '<td style=\"padding:9px 10px;vertical-align:top\"><div style=\"font-size:10px;font-weight:700;color:#002E35\">' + (a.n || 'n/a') + '</div><div style=\"font-size:8px;color:#939393;margin-top:1px\">' + region + ' &middot; ' + tech + '</div></td>'
+      + '<td style=\"padding:9px 10px;font-size:8px;color:#002E35;vertical-align:top\">' + (a.contact || a.n || 'n/a') + '</td>'
+      + '<td style=\"padding:9px 10px;font-size:8px;color:#002E35;vertical-align:top\">' + (a.d || 'n/a') + '<div style=\"font-size:7.5px;color:#939393;margin-top:1px\">' + comCount + ' COM(s)</div></td>'
+      + '<td style=\"padding:9px 10px;vertical-align:top\">' + actDots(comCount) + '<div style=\"font-size:7px;color:#939393;margin-top:3px\">' + actLevel + '</div></td>'
+      + '<td style=\"padding:9px 10px;font-size:8px;color:#002E35;vertical-align:top;line-height:1.5\">' + (a.v || 'n/a') + '</td>'
       + '</tr>';
   }).join('');
 
   var barSVGrows = barAdvisors.length ? barAdvisors.map(function(a, i) {
     var w = barMax > 0 ? Math.round((a.val / barMax) * 160) : 0;
     var y = 10 + i * 24;
-    return '<text x="0" y="' + (y+14) + '" font-size="8" fill="#002E35" font-family="Arial,sans-serif">' + a.name.substring(0,12) + '</text>'
-      + '<rect x="72" y="' + y + '" width="' + w + '" height="14" fill="#009CB8" rx="3"/>'
-      + '<text x="' + (72+w+4) + '" y="' + (y+11) + '" font-size="8" fill="#002E35" font-family="Arial,sans-serif">' + a.val.toFixed(2) + 'M</text>';
+    return '<text x=\"0\" y=\"' + (y+14) + '\" font-size=\"8\" fill=\"#002E35\" font-family=\"Arial,sans-serif\">' + a.name.substring(0,12) + '</text>'
+      + '<rect x=\"72\" y=\"' + y + '\" width=\"' + w + '\" height=\"14\" fill=\"#009CB8\" rx=\"3\"/>'
+      + '<text x=\"' + (72+w+4) + '\" y=\"' + (y+11) + '\" font-size=\"8\" fill=\"#002E35\" font-family=\"Arial,sans-serif\">' + a.val.toFixed(2) + 'M</text>';
   }).join('') : '';
 
   var barSVGH = 30 + barAdvisors.length * 24;
   var barBlock = barAdvisors.length
-    ? '<svg width="100%" height="' + barSVGH + '" viewBox="0 0 260 ' + barSVGH + '" xmlns="http://www.w3.org/2000/svg">' + barSVGrows + '</svg>'
-    : '<div style="font-size:9px;color:#939393">No advisor pricing data available</div>';
+    ? '<svg width=\"100%\" height=\"' + barSVGH + '\" viewBox=\"0 0 260 ' + barSVGH + '\" xmlns=\"http://www.w3.org/2000/svg\">' + barSVGrows + '</svg>'
+    : '<div style=\"font-size:9px;color:#939393\">No advisor pricing data available</div>';
 
   var narrativeSec = narrativeText
-    ? '<div style="background:#EAF5F7;border-radius:6px;padding:12px 14px;border-left:3px solid #009CB8;margin-top:14px">'
-      + '<div style="display:inline-block;background:#009CB8;color:#fff;font-size:7px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-bottom:7px">AI-Generated &middot; Claude &middot; ' + dateStr + '</div>'
-      + '<div style="font-size:9.5px;color:#002E35;line-height:1.65;font-style:italic">'
-      + narrativeText.replace(/\[WEB\]/g, '<span style="background:#fef3c7;color:#92400e;font-size:7px;padding:1px 4px;border-radius:3px;font-weight:700">WEB</span>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')
+    ? '<div style=\"background:#EAF5F7;border-radius:6px;padding:12px 14px;border-left:3px solid #009CB8;margin-top:14px;page-break-inside:avoid\">'
+      + '<div style=\"display:inline-block;background:#009CB8;color:#fff;font-size:7px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-bottom:7px\">AI-Generated &middot; Claude &middot; ' + dateStr + '</div>'
+      + '<div style=\"font-size:9.5px;color:#002E35;line-height:1.65;font-style:italic\">'
+      + narrativeText.replace(/\[WEB\]/g, '<span style=\"background:#fef3c7;color:#92400e;font-size:7px;padding:1px 4px;border-radius:3px;font-weight:700\">WEB</span>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')
       + '</div></div>'
-    : '<div style="background:#F2F2F2;border-radius:6px;padding:12px 14px;border-left:3px solid #D9D9D9;margin-top:14px">'
-      + '<div style="font-size:9.5px;color:#939393;font-style:italic">AI narrative unavailable &mdash; connect to Claude to generate market intelligence commentary.</div>'
+    : '<div style=\"background:#F2F2F2;border-radius:6px;padding:12px 14px;border-left:3px solid #D9D9D9;margin-top:14px\">'
+      + '<div style=\"font-size:9.5px;color:#939393;font-style:italic\">AI narrative unavailable &mdash; connect to Claude to generate market intelligence commentary.</div>'
       + '</div>';
 
   var pipeMW = regionPipelineMW > 0 ? Math.round(regionPipelineMW) + ' MW' : 'n/a';
 
   var hdr = function(title) {
-    return '<div style="background:#002E35;padding:14px 28px;display:flex;justify-content:space-between;align-items:center">'
-      + '<div style="font-size:13px;font-weight:700;color:#fff;font-family:Montserrat,Arial,sans-serif">' + title + '</div>'
-      + '<div style="display:flex;align-items:center;gap:14px">'
-      + '<div style="font-size:9px;color:#009CB8;font-weight:600;letter-spacing:1px;text-transform:uppercase">' + countryName + ' &middot; ' + tech + '</div>'
-      + '<div style="font-size:11px;font-weight:700;color:#009CB8;font-family:Montserrat,Arial,sans-serif">exus</div>'
+    return '<div style=\"background:#002E35;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;page-break-inside:avoid\">'
+      + '<div style=\"font-size:13px;font-weight:700;color:#fff;font-family:Montserrat,Arial,sans-serif\">' + title + '</div>'
+      + '<div style=\"display:flex;align-items:center;gap:14px\">'
+      + '<div style=\"font-size:9px;color:#009CB8;font-weight:600;letter-spacing:1px;text-transform:uppercase\">' + countryName + ' &middot; ' + tech + '</div>'
+      + '<img src=\"' + LOGO_SRC + '\" style=\"height:22px;width:auto;filter:brightness(0) invert(1)\" alt=\"Exus Renewables\">'
       + '</div></div>';
   };
 
-  var ftr = function(pg) {
-    return '<div style="position:absolute;bottom:0;left:0;right:0;border-top:0.5px solid #D9D9D9;padding:7px 28px;display:flex;justify-content:space-between;align-items:center">'
-      + '<div style="font-size:8px;color:#939393">Exus Renewables &middot; Confidential &middot; ' + dateStr + '</div>'
-      + '<div style="font-size:8px;color:#009CB8;font-weight:600">Page ' + pg + ' of 4</div>'
-      + '</div>';
-  };
-
-  var secTitle = function(t) {
-    return '<div style="font-size:10px;font-weight:700;color:#002E35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:11px;border-left:3px solid #009CB8;padding-left:8px">' + t + '</div>';
-  };
+  var ftr = '<div style=\"border-top:0.5px solid #D9D9D9;padding:10px 28px;display:flex;justify-content:space-between;align-items:center;margin-top:20px\">'
+    + '<div style=\"font-size:8px;color:#939393\">Exus Renewables &middot; Confidential &middot; ' + dateStr + '</div>'
+    + '</div>';
 
   var kpiTile = function(label, value, sub) {
-    return '<div style="background:#EAF5F7;border-radius:6px;padding:12px 11px;border-left:3px solid #009CB8">'
-      + '<div style="font-size:8px;font-weight:700;color:#939393;text-transform:uppercase;letter-spacing:0.9px;margin-bottom:5px">' + label + '</div>'
-      + '<div style="font-size:15px;font-weight:800;color:#002E35;line-height:1.2">' + value + '</div>'
-      + '<div style="font-size:8px;color:#009CB8;margin-top:3px;font-weight:600">' + sub + '</div>'
+    return '<div style=\"background:#EAF5F7;border-radius:6px;padding:12px 11px;border-left:3px solid #009CB8\">'
+      + '<div style=\"font-size:8px;font-weight:700;color:#939393;text-transform:uppercase;letter-spacing:0.9px;margin-bottom:5px\">' + label + '</div>'
+      + '<div style=\"font-size:15px;font-weight:800;color:#002E35;line-height:1.2\">' + value + '</div>'
+      + '<div style=\"font-size:8px;color:#009CB8;margin-top:3px;font-weight:600\">' + sub + '</div>'
       + '</div>';
   };
 
-  return '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n'
-    + '<title>Market Intelligence - ' + countryName + ' ' + tech + ' - ' + dateStr + '</title>\n'
-    + '<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">\n'
-    + '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Lato,Arial,sans-serif;background:#fff;color:#002E35}@page{size:A4;margin:0}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{page-break-after:always;page-break-inside:avoid}.page:last-child{page-break-after:auto}}table{border-collapse:collapse;width:100%}.page{width:210mm;min-height:297mm;position:relative;overflow:hidden;background:#fff}</style>\n'
-    + '</head>\n<body>\n'
-
-    // PAGE 1 COVER
-    + '<div class="page" style="position:relative;overflow:hidden">'
-    + '<div style="height:8px;background:linear-gradient(90deg,#009CB8,#005B6C)"></div>'
-    + '<div style="position:absolute;top:0;right:0;width:220px;height:100%;background:#009CB8;opacity:0.10;clip-path:polygon(40% 0%,100% 0%,100% 100%,0% 100%);pointer-events:none"></div>'
-    + '<div style="position:absolute;top:0;right:0;width:140px;height:100%;background:#005B6C;opacity:0.08;clip-path:polygon(40% 0%,100% 0%,100% 100%,15% 100%);pointer-events:none"></div>'
-    + '<div style="padding:40px 44px;position:relative;z-index:2">'
-    + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:36px"><div style="width:28px;height:28px;background:#009CB8;border-radius:5px;display:flex;align-items:center;justify-content:center"><span style="color:#fff;font-size:14px;font-weight:800;font-family:Montserrat,Arial">e</span></div><div><div style="font-size:14px;font-weight:700;color:#009CB8;font-family:Montserrat,Arial">exus</div><div style="font-size:8px;color:#939393;letter-spacing:1.2px;text-transform:uppercase">Renewables</div></div></div>'
-    + '<div style="display:inline-block;background:#EAF5F7;color:#005B6C;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:5px;margin-bottom:18px">Market Intelligence Report</div>'
-    + '<div style="font-size:42px;font-weight:800;color:#002E35;font-family:Montserrat,Arial;line-height:1.1;margin-bottom:6px">' + flag + ' ' + countryName + '</div>'
-    + '<div style="font-size:17px;font-weight:500;color:#009CB8;margin-bottom:28px">' + techLabel + ' &middot; Active Pipeline</div>'
-    + '<div style="display:flex;gap:32px">'
-    + '<div><div style="font-size:9px;color:#939393">Technology</div><div style="font-size:11px;font-weight:700;color:#002E35;margin-top:2px">' + techLabel + '</div></div>'
-    + '<div><div style="font-size:9px;color:#939393">Generated</div><div style="font-size:11px;font-weight:700;color:#002E35;margin-top:2px">' + dateStr + '</div></div>'
-    + '<div><div style="font-size:9px;color:#939393">Sources</div><div style="font-size:11px;font-weight:700;color:#002E35;margin-top:2px">' + srcLabel + '</div></div>'
-    + '<div><div style="font-size:9px;color:#939393">Prepared by</div><div style="font-size:11px;font-weight:700;color:#002E35;margin-top:2px">Exus Renewables</div></div>'
+  // Cover page (always page 1, forced break after)
+  var coverPage = '<div style=\"width:210mm;min-height:297mm;position:relative;overflow:hidden;background:#fff;page-break-after:always\">'
+    + '<div style=\"height:8px;background:linear-gradient(90deg,#009CB8,#005B6C)\"></div>'
+    + '<div style=\"position:absolute;top:0;right:0;width:220px;height:100%;background:#009CB8;opacity:0.10;clip-path:polygon(40% 0%,100% 0%,100% 100%,0% 100%);pointer-events:none\"></div>'
+    + '<div style=\"position:absolute;top:0;right:0;width:140px;height:100%;background:#005B6C;opacity:0.08;clip-path:polygon(40% 0%,100% 0%,100% 100%,15% 100%);pointer-events:none\"></div>'
+    + '<div style=\"padding:40px 44px;position:relative;z-index:2\">'
+    + '<div style=\"margin-bottom:36px\"><img src=\"' + LOGO_SRC + '\" style=\"height:52px;width:auto\" alt=\"Exus Renewables\"></div>'
+    + '<div style=\"display:inline-block;background:#EAF5F7;color:#005B6C;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:5px 12px;border-radius:5px;margin-bottom:18px\">Market Intelligence Report</div>'
+    + '<div style=\"font-size:42px;font-weight:800;color:#002E35;font-family:Montserrat,Arial;line-height:1.1;margin-bottom:6px\">' + flag + ' ' + countryName + '</div>'
+    + '<div style=\"font-size:17px;font-weight:500;color:#009CB8;margin-bottom:28px\">' + techLabel + ' &middot; Active Pipeline</div>'
+    + '<div style=\"display:flex;gap:32px\">'
+    + '<div><div style=\"font-size:9px;color:#939393\">Technology</div><div style=\"font-size:11px;font-weight:700;color:#002E35;margin-top:2px\">' + techLabel + '</div></div>'
+    + '<div><div style=\"font-size:9px;color:#939393\">Generated</div><div style=\"font-size:11px;font-weight:700;color:#002E35;margin-top:2px\">' + dateStr + '</div></div>'
+    + '<div><div style=\"font-size:9px;color:#939393\">Sources</div><div style=\"font-size:11px;font-weight:700;color:#002E35;margin-top:2px\">' + srcLabel + '</div></div>'
+    + '<div><div style=\"font-size:9px;color:#939393\">Prepared by</div><div style=\"font-size:11px;font-weight:700;color:#002E35;margin-top:2px\">Exus Renewables</div></div>'
     + '</div></div>'
-    + '<div style="position:absolute;bottom:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#009CB8,#00768A,#005B6C)"></div>'
-    + '</div>'
+    + '<div style=\"position:absolute;bottom:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#009CB8,#00768A,#005B6C)\"></div>'
+    + '</div>';
 
-    // PAGE 2 SNAPSHOT
-    + '<div class="page">' + hdr('Market Snapshot')
-    + '<div style="padding:20px 28px 40px">'
-    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px">'
+  // Content flows naturally across pages
+  var body = '<div style=\"padding:0 0 20px\">';
+
+  // ── Market Snapshot ──
+  body += hdr('Market Snapshot');
+  body += '<div style=\"padding:20px 28px\">';
+  body += '<div style=\"page-break-inside:avoid;margin-bottom:18px\">'
+    + '<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:10px\">'
     + kpiTile('Pipeline MW', pipeMW, 'Active pipeline')
     + kpiTile('COD EV/MW', codStr, 'Advisor consensus')
     + kpiTile('RtB EV/MW', rtbStr, 'Advisor consensus')
     + kpiTile('Advisors Tracked', String(advCount), recentComs.length + ' COMs in log')
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">'
-    + '<div style="background:#F2F2F2;border-radius:6px;padding:13px"><div style="font-size:8px;font-weight:700;color:#939393;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:9px">Advisor-quoted EV/MW</div>' + barBlock + '</div>'
-    + '<div style="background:#F2F2F2;border-radius:6px;padding:13px"><div style="font-size:8px;font-weight:700;color:#939393;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:9px">Benchmark ranges</div>'
-    + '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:8px;color:#939393;margin-bottom:4px"><span style="font-weight:700;color:#002E35">COD (operational)</span><span>M/MW</span></div><div style="height:10px;background:#D9D9D9;border-radius:5px;position:relative;margin-bottom:3px"><div style="position:absolute;left:20%;width:50%;height:100%;border-radius:5px;background:#009CB8;opacity:0.4"></div><div style="position:absolute;left:45%;width:10px;height:10px;border-radius:50%;background:#005B6C;top:0;border:2px solid #fff"></div></div><div style="font-size:8px;color:#939393">' + codStr + '</div></div>'
-    + '<div><div style="display:flex;justify-content:space-between;font-size:8px;color:#939393;margin-bottom:4px"><span style="font-weight:700;color:#002E35">RtB (ready-to-build)</span><span>k/MW</span></div><div style="height:10px;background:#D9D9D9;border-radius:5px;position:relative;margin-bottom:3px"><div style="position:absolute;left:15%;width:40%;height:100%;border-radius:5px;background:#2C868E;opacity:0.4"></div><div style="position:absolute;left:33%;width:10px;height:10px;border-radius:50%;background:#2C868E;top:0;border:2px solid #fff"></div></div><div style="font-size:8px;color:#939393">' + rtbStr + '</div></div>'
-    + '<div style="margin-top:10px;font-size:7.5px;color:#939393">IRR range: ' + irrStr + '</div>'
-    + '</div></div>'
-    + secTitle('Market Narrative') + narrativeSec
-    + '</div>' + ftr('2') + '</div>'
+    + '</div></div>';
+  body += '<div style=\"page-break-inside:avoid;margin-bottom:18px\">'
+    + '<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:14px\">'
+    + '<div style=\"background:#F2F2F2;border-radius:6px;padding:13px\"><div style=\"font-size:8px;font-weight:700;color:#939393;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:9px\">Advisor-quoted EV/MW</div>' + barBlock + '</div>'
+    + '<div style=\"background:#F2F2F2;border-radius:6px;padding:13px\"><div style=\"font-size:8px;font-weight:700;color:#939393;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:9px\">Benchmark ranges</div>'
+    + '<div style=\"margin-bottom:10px\"><div style=\"display:flex;justify-content:space-between;font-size:8px;color:#939393;margin-bottom:4px\"><span style=\"font-weight:700;color:#002E35\">COD (operational)</span><span>M/MW</span></div><div style=\"height:10px;background:#D9D9D9;border-radius:5px;position:relative;margin-bottom:3px\"><div style=\"position:absolute;left:20%;width:50%;height:100%;border-radius:5px;background:#009CB8;opacity:0.4\"></div><div style=\"position:absolute;left:45%;width:10px;height:10px;border-radius:50%;background:#005B6C;top:0;border:2px solid #fff\"></div></div><div style=\"font-size:8px;color:#939393\">' + codStr + '</div></div>'
+    + '<div><div style=\"display:flex;justify-content:space-between;font-size:8px;color:#939393;margin-bottom:4px\"><span style=\"font-weight:700;color:#002E35\">RtB (ready-to-build)</span><span>k/MW</span></div><div style=\"height:10px;background:#D9D9D9;border-radius:5px;position:relative;margin-bottom:3px\"><div style=\"position:absolute;left:15%;width:40%;height:100%;border-radius:5px;background:#2C868E;opacity:0.4\"></div><div style=\"position:absolute;left:33%;width:10px;height:10px;border-radius:50%;background:#2C868E;top:0;border:2px solid #fff\"></div></div><div style=\"font-size:8px;color:#939393\">' + rtbStr + '</div></div>'
+    + '<div style=\"margin-top:10px;font-size:7.5px;color:#939393\">IRR range: ' + irrStr + '</div>'
+    + '</div></div></div>';
+  body += '<div style=\"page-break-inside:avoid;margin-bottom:20px\">'
+    + '<div style=\"font-size:10px;font-weight:700;color:#002E35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:11px;border-left:3px solid #009CB8;padding-left:8px\">Market Narrative</div>'
+    + narrativeSec
+    + '</div>';
+  body += '</div>';
 
-    // PAGE 3 COMPS + ACTIVE ADVISORS
-    + '<div class="page">' + hdr('Benchmark Transactions &amp; Active Advisors')
-    + '<div style="padding:20px 28px 40px">'
-    + secTitle('Comparable Transactions')
+  // ── Comparables + Active Advisors ──
+  body += hdr('Benchmark Transactions &amp; Active Advisors');
+  body += '<div style=\"padding:20px 28px\">';
+  body += '<div style=\"page-break-inside:avoid;margin-bottom:20px\">'
+    + '<div style=\"font-size:10px;font-weight:700;color:#002E35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:11px;border-left:3px solid #009CB8;padding-left:8px\">Comparable Transactions</div>'
     + (comps.length
-      ? '<table style="width:100%;border-collapse:collapse;font-size:8.5px;margin-bottom:18px"><thead><tr style="background:#002E35"><th style="padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase">Asset</th><th style="padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase">Stage</th><th style="padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase">Capacity</th><th style="padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase">EV/MW</th><th style="padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase">Date</th></tr></thead><tbody>' + compRows + '</tbody></table>'
-      : '<div style="background:#F2F2F2;border-radius:6px;padding:12px;font-size:9px;color:#939393;margin-bottom:18px">No comparable transactions recorded for this market.</div>')
-    + secTitle('6 Most Recently Active Advisors')
+      ? '<table style=\"width:100%;border-collapse:collapse;font-size:8.5px\"><thead><tr style=\"background:#002E35\"><th style=\"padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase\">Asset</th><th style=\"padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase\">Stage</th><th style=\"padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase\">Capacity</th><th style=\"padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase\">EV/MW</th><th style=\"padding:7px 9px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase\">Date</th></tr></thead><tbody>' + compRows + '</tbody></table>'
+      : '<div style=\"background:#F2F2F2;border-radius:6px;padding:12px;font-size:9px;color:#939393\">No comparable transactions recorded for this market.</div>')
+    + '</div>';
+  body += '<div style=\"page-break-inside:avoid;margin-bottom:20px\">'
+    + '<div style=\"font-size:10px;font-weight:700;color:#002E35;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:11px;border-left:3px solid #009CB8;padding-left:8px\">6 Most Recently Active Advisors</div>'
     + (recentAdvsForPage3.length
-      ? '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">' + advCards + '</div>'
-      : '<div style="font-size:9px;color:#939393">No advisor data recorded for this market.</div>')
-    + '</div>' + ftr('3') + '</div>'
+      ? '<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px\">' + advCards + '</div>'
+      : '<div style=\"font-size:9px;color:#939393\">No advisor data recorded for this market.</div>')
+    + '</div>';
+  body += '</div>';
 
-    // PAGE 4 FULL DIRECTORY
-    + '<div class="page">' + hdr('Full Advisor Directory')
-    + '<div style="padding:20px 28px 40px">'
-    + (allAdvisors.length
-      ? '<table style="width:100%;border-collapse:collapse;font-size:8.5px"><thead><tr style="background:#002E35"><th style="padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:18%">Advisor</th><th style="padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:13%">Contact</th><th style="padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:11%">Last Contact</th><th style="padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:9%">Activity</th><th style="padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase">Latest Intelligence</th></tr></thead><tbody>' + dirRows + '</tbody></table>'
-      : '<div style="font-size:9px;color:#939393">No advisors recorded for this market.</div>')
-    + '</div>' + ftr('4') + '</div>'
+  // ── Full Advisor Directory ──
+  body += hdr('Full Advisor Directory');
+  body += '<div style=\"padding:20px 28px\">';
+  body += (allAdvisors.length
+    ? '<table style=\"width:100%;border-collapse:collapse;font-size:8.5px\"><thead><tr style=\"background:#002E35\"><th style=\"padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:18%\">Advisor</th><th style=\"padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:13%\">Contact</th><th style=\"padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:11%\">Last Contact</th><th style=\"padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase;width:9%\">Activity</th><th style=\"padding:7px 10px;text-align:left;font-weight:700;font-size:7.5px;color:#fff;text-transform:uppercase\">Latest Intelligence</th></tr></thead><tbody>' + dirRows + '</tbody></table>'
+    : '<div style=\"font-size:9px;color:#939393\">No advisors recorded for this market.</div>');
+  body += '</div>';
 
+  body += ftr;
+  body += '</div>';
+
+  return '<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n'
+    + '<title>Market Intelligence - ' + countryName + ' ' + tech + ' - ' + dateStr + '</title>\n'
+    + '<link href=\"https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@700;800&display=swap\" rel=\"stylesheet\">\n'
+    + '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Lato,Arial,sans-serif;background:#fff;color:#002E35}@page{size:A4;margin:12mm 12mm 12mm 12mm}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}tr{page-break-inside:avoid}}table{border-collapse:collapse;width:100%}</style>\n'
+    + '</head>\n<body>\n'
+    + coverPage
+    + body
     + '\n</body></html>';
 }
 
@@ -2983,8 +2993,8 @@ function renderDataSources(){
     'Internal Report':{bg:'#f0fdf4',color:'#166534'},
     'General Email':  {bg:'#D9D9D9',color:'#555'}
   };
-  // Show newest first
-  const sorted = [...sources].reverse();
+  // Array is prepend-ordered (newest first)
+  const sorted = [...sources];
   el.innerHTML = sorted.map(s => {
     const icon  = typeIcon[s.type]  || '📎';
     const badge = typeBadge[s.type] || {bg:'#D9D9D9',color:'#555'};
